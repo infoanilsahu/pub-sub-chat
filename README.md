@@ -2,4 +2,4 @@
 
 scalable websocket server
 
-[!Redis](redis.png)
+![Redis](redis.png)
