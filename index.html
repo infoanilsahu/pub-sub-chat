@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat-App</title>
+    <style>
+        #input {
+            display: none;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hello! i want to chat </h1>
+    <button id="server-connect" >chat</button>
+    <div id="input">
+        <input type="text" placeholder="message..." id="input-data">
+        <button id="input-button">send</button>
+        <ul id="messages"></ul>
+    </div>
+</body>
+
+<script>
+    const serverConnect = document.getElementById("server-connect")
+    const inputSection = document.getElementById("input")
+    let connectionRunning = false
+    const {port} = window.location
+    let connection = null
+
+    const inputButton = document.getElementById("input-button")
+    const inputText = document.getElementById("input-data")
+    const messages = document.getElementById("messages")
+
+    serverConnect.addEventListener("click", function (ev) {
+        if( !connection || connection.readyState === WebSocket.CLOSED ) {
+            
+            connection = new WebSocket(`ws://localhost:${port}`)
+
+            connection.onopen =() => {
+                serverConnect.innerText = "Disconnect"
+                inputSection.style.display = "block"
+                
+                console.log("connected");
+            }
+
+            connection.onmessage = (msg) => {
+                const li = document.createElement('li')
+                li.textContent = msg.data;
+                messages.append(li)
+            }
+
+
+            connection.onclose = () => {
+                serverConnect.innerText = "chat"
+                inputSection.style.display = "none"
+
+                console.log("disconnected")
+                connection = null;
+            }
+        }
+        else {
+            connection.close()
+        }
+    })
+
+    inputButton.addEventListener("click", () => {
+        console.log("send data :");
+        
+        if ( connection && connection.readyState === WebSocket.OPEN ) {
+            connection.send(inputText.value)
+            inputText.value = ""
+        }
+    })
+
+
+</script>
+</html>
